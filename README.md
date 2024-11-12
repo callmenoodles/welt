@@ -17,9 +17,13 @@ Measurements are done in three steps.
 2. Empty browser tab
 3. Website
 
-## Note
+## Troubleshooting
 ### No access to Intel RAPL on Linux
 Intel RAPL requires root access.
 ```commandline
 # chmod -R a+r /sys/class/powercap/intel-rapl
+```
+### Another instance of codecarbon is already running
+```commandline
+rm /tmp/.codecarbon.lock
 ```
