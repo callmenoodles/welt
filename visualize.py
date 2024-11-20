@@ -51,11 +51,17 @@ def create_barchart(df, column):
 
 
 if __name__ == '__main__':
-    dataframe = pd.read_csv('out/out.csv')
-    col = 'energy'
+    df = pd.read_csv('out/out.csv')
+    df_nobase = df[~df['url'].str.contains('OS')]
+    baseline = df.iloc[1, 5]  # 0 = OS, 1 = OS + Browser
 
-    create_histogram(dataframe, col)
-    create_labeled_histogram(dataframe, col)
-    create_barchart(dataframe, col)
+    df[df.columns[5]] = df[df.columns[5]] - baseline
+    df_nobase[df_nobase.columns[5]] = df_nobase[df_nobase.columns[5]] - baseline
+
+    col = 'cpu_power'
+
+    create_histogram(df_nobase, col)
+    create_labeled_histogram(df_nobase, col)
+    create_barchart(df_nobase, col)
 
     plt.show()

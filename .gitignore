@@ -1,6 +1,8 @@
 # Manually added
 *.bak
 .idea
+backup/
+test.py
 
 # Created by .ignore support plugin (hsz.mobi)
 ### Python template

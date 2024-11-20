@@ -19,10 +19,10 @@ import atexit
 import time
 
 t_measurement = 10  # Measurement duration
-t_wait = 10  # Waiting time between measurements
+t_wait = 5  # Waiting time between measurements
 
 driver: FirefoxWebDriver | None = None
-_TOOLS = Literal["scaphandre", "codecarbon"]
+_TOOLS = Literal["scaphandre", "codecarbon", "powerjoular"]
 filename = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 tracker: OfflineEmissionsTracker = OfflineEmissionsTracker(measure_power_secs=t_measurement)
 atexit.register(tracker.stop)
@@ -31,17 +31,17 @@ atexit.register(tracker.stop)
 def measure_baseline_with(tool: _TOOLS, run_id):
     global driver
 
-    print("Measuring OS...")
     time.sleep(t_wait)
-    measure_with(tool, t_measurement, "OS", run_id, True)
+    print("Measuring OS...")
+    measure_with(tool, t_measurement, "OS", run_id)
 
-    print("Measuring Browser...")
     driver = webdriver.Firefox()
     time.sleep(t_wait)
+    print("Measuring Browser...")
     measure_with(tool, t_measurement, "OS + BROWSER", run_id)
 
 
-def measure_with(tool: _TOOLS, duration, url: str, run_id, no_browser=False):
+def measure_with(tool: _TOOLS, duration, url: str, run_id):
     def codecarbon_end():
         global driver, tracker
 
@@ -63,13 +63,14 @@ def measure_with(tool: _TOOLS, duration, url: str, run_id, no_browser=False):
             'gpu_energy': row['gpu_power'].values[0],
             'ram_power': row['ram_power'].values[0],
             'ram_energy': row['ram_energy'].values[0],
+            'ram_size': row['ram_total_size'].values[0],
             'emissions': row['emissions'].values[0],
-            'emissions_rate': row['emissions_rate'].values[0]
+            'emissions_rate': row['emissions_rate'].values[0],
         }
         new_row_df = pd.DataFrame([new_row])
-        outfile = 'out/out.csv'
+        outfile = 'out/out-' + run_id + '.csv'
         header = ('id,url,tool,timestamp,duration,energy,cpu_power,cpu_energy,gpu_power,gpu_energy,ram_power,'
-                  'ram_energy,emissions,emissions_rate')
+                  'ram_energy,ram_size,emissions,emissions_rate')
 
         if os.path.isfile(outfile):
             new_row_df.to_csv(outfile, mode='a', header=False, index=False)
@@ -78,6 +79,7 @@ def measure_with(tool: _TOOLS, duration, url: str, run_id, no_browser=False):
 
         os.remove('out/codecarbon.csv')
         tracker = OfflineEmissionsTracker(measure_power_secs=t_measurement)
+        subprocess.run("rm", "/tmp/.codecarbon.lock")
 
     match tool:
         case "scaphandre":
@@ -96,13 +98,16 @@ def run_experiment(tool: _TOOLS):
     run_id = uuid4()
     measure_baseline_with(tool, run_id)
 
-    with open('data/test.json', 'r') as file:
+    with open('data/combined.json', 'r') as file:
         urls = json.load(file)
 
         for url in urls:
-            driver.get(url)
-            time.sleep(t_wait)  # Wait with tracking to calibrate energy readings
-            measure_with(tool, t_measurement, url, run_id)
+            try:
+                driver.get(url)
+                time.sleep(t_wait)  # Wait with tracking to calibrate energy readings
+                measure_with(tool, t_measurement, url, run_id)
+            except Exception:
+                print("FAILED TO LOAD " + url)
 
         file.close()
 
