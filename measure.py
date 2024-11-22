@@ -24,8 +24,7 @@ t_wait = 5  # Waiting time between measurements
 driver: FirefoxWebDriver | None = None
 _TOOLS = Literal["scaphandre", "codecarbon", "powerjoular"]
 filename = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-tracker: OfflineEmissionsTracker = OfflineEmissionsTracker(measure_power_secs=t_measurement)
-atexit.register(tracker.stop)
+tracker = OfflineEmissionsTracker | None
 
 
 def measure_baseline_with(tool: _TOOLS, run_id):
@@ -42,6 +41,8 @@ def measure_baseline_with(tool: _TOOLS, run_id):
 
 
 def measure_with(tool: _TOOLS, duration, url: str, run_id):
+    global tracker
+
     def codecarbon_end():
         global driver, tracker
 
@@ -49,7 +50,7 @@ def measure_with(tool: _TOOLS, duration, url: str, run_id):
         tracker.stop()
         event.set()
 
-        row = pd.read_csv('out/codecarbon.csv', nrows=1)
+        row = pd.read_csv('out/tmp/codecarbon.csv', nrows=1)
         new_row = {
             'id': run_id,
             'url': url,
@@ -68,7 +69,8 @@ def measure_with(tool: _TOOLS, duration, url: str, run_id):
             'emissions_rate': row['emissions_rate'].values[0],
         }
         new_row_df = pd.DataFrame([new_row])
-        outfile = 'out/out-' + run_id + '.csv'
+        # outfile = 'out/out-' + str(run_id) + '.csv'
+        outfile = 'out/out-test.csv'
         header = ('id,url,tool,timestamp,duration,energy,cpu_power,cpu_energy,gpu_power,gpu_energy,ram_power,'
                   'ram_energy,ram_size,emissions,emissions_rate')
 
@@ -77,15 +79,16 @@ def measure_with(tool: _TOOLS, duration, url: str, run_id):
         else:
             new_row_df.to_csv(outfile, header=header, index=False)
 
-        os.remove('out/codecarbon.csv')
+        os.remove('out/tmp/codecarbon.csv')
         tracker = OfflineEmissionsTracker(measure_power_secs=t_measurement)
         subprocess.run("rm", "/tmp/.codecarbon.lock")
 
     match tool:
         case "scaphandre":
             subprocess.run(
-                ["scaphandre", "json", "-t", str(duration), '-f', 'out/scaphandre-' + filename + '.json'],
+                ["scaphandre", "json", "-t", str(duration), '-f', 'out/tmp/scaphandre-' + filename + '.json'],
                 capture_output=True)
+            print("Done Scaphandre")
 
         case "codecarbon":
             tracker.start()
@@ -95,14 +98,19 @@ def measure_with(tool: _TOOLS, duration, url: str, run_id):
 
 
 def run_experiment(tool: _TOOLS):
+    if tool == "codecarbon":
+        tracker = OfflineEmissionsTracker(measure_power_secs=t_measurement)
+        atexit.register(tracker.stop)
+
     run_id = uuid4()
     measure_baseline_with(tool, run_id)
 
-    with open('data/combined.json', 'r') as file:
+    with open('data/test.json', 'r') as file:
         urls = json.load(file)
 
         for url in urls:
             try:
+                print("Loading " + url + "...")
                 driver.get(url)
                 time.sleep(t_wait)  # Wait with tracking to calibrate energy readings
                 measure_with(tool, t_measurement, url, run_id)
@@ -114,4 +122,4 @@ def run_experiment(tool: _TOOLS):
     driver.quit()
 
 
-run_experiment("codecarbon")
+run_experiment("scaphandre")
