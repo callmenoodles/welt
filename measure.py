@@ -49,7 +49,7 @@ def run_scaphandre(url, duration):
     subprocess.run(["/usr/local/src/scaphandre/target/release/scaphandre", 'json', '-t', str(duration),
                     '-s', '1', '-f', f'out/tmp/scaphandre-{domain}.json'])
 
-    with open(f'out/tmp/scaphandre-{domain}.json', 'r') as f:
+    with opIen(f'out/tmp/scaphandre-{domain}.json', 'r') as f:
         raw = json.load(f)
         consumption = []
 
