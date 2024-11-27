@@ -49,7 +49,7 @@ def run_scaphandre(url, duration):
     subprocess.run(["/usr/local/src/scaphandre/target/release/scaphandre", 'json', '-t', str(duration),
                     '-s', '1', '-f', f'out/tmp/scaphandre-{domain}.json'])
 
-    with opIen(f'out/tmp/scaphandre-{domain}.json', 'r') as f:
+    with open(f'out/tmp/scaphandre-{domain}.json', 'r') as f:
         raw = json.load(f)
         consumption = []
 
@@ -106,32 +106,6 @@ def run_codecarbon(url, duration):
     tracker.start()
     threading.Timer(duration, end_codecarbon, args=[url, duration]).start()
     event.wait()
-
-
-# FIXME: Powerjoular requires root privileges; Test on a different system.
-def run_powerjoular(url, duration):
-    domain = get_domain(url)
-    path = f'out/tmp/powerjoular-{domain}.csv'
-    process = subprocess.Popen([
-        'sudo', '/usr/local/src/powerjoular/obj/powerjoular', '-f', path])
-    time.sleep(duration)
-    process.terminate()
-
-    with open(path, 'r') as f:
-        tmp_row = pd.read_csv(path, nrows=1)
-
-        row = {
-            'url': url,
-            'tool': 'powerjoular',
-            'timestamp': tmp_row['timestamp'].values[0],
-            'duration': float(duration),
-            'energy': tmp_row['Total Power'] / duration,
-            'cpu_power': tmp_row['CPU Power'],
-            'cpu_energy': '',
-            'gpu_power': tmp_row['GPU Power']
-        }
-
-        output_to_csv(pd.DataFrame([row]))
 
 
 def measure(url, duration, delay, tool: _TOOLS):
