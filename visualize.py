@@ -14,7 +14,7 @@ def create_histogram(df, column):
     plt.title("Energy Consumption Distribution of Landing Pages", pad=32)
     plt.xlabel('Energy Consumption (kWh)', labelpad=16)
     plt.ylabel('Frequency', labelpad=16)
-    plt.ticklabel_format(style='sci', scilimits=(0, 0))
+    plt.ticklabel_format(axis='x', style='sci', scilimits=(0, 0))
     plt.grid(False)
 
 
@@ -27,8 +27,8 @@ def create_labeled_histogram(df, column):
     plt.xticks(bins)
     plt.title("Energy Consumption Distribution of Landing Pages", pad=32)
     plt.xlabel('Energy Consumption (kWh)', labelpad=16)
-    plt.ylabel('Frequency', labelpad=16)
-    plt.ticklabel_format(style='sci', scilimits=(0, 0))
+    plt.ylabel('No. Pages', labelpad=16)
+    plt.ticklabel_format(axis='x', style='sci', scilimits=(0, 0))
     plt.xlim(left=bins[0], right=bins[len(bins) - 1])
     plt.grid(True)
 

@@ -15,8 +15,9 @@ import time
 import os
 
 _TOOLS = Literal['scaphandre', 'codecarbon', 'powerjoular']
+_BROWSERS = Literal['firefox', 'chrome']
 driver: FirefoxWebDriver | None = None
-tracker = OfflineEmissionsTracker()
+tracker = OfflineEmissionsTracker(measure_power_secs=10)
 event = threading.Event()
 
 
@@ -43,7 +44,7 @@ def output_to_csv(row):
 
 
 def run_scaphandre(url, duration):
-    timestamp = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+    timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
     domain = get_domain(url)
 
     subprocess.run(["/usr/local/src/scaphandre/target/release/scaphandre", 'json', '-t', str(duration),
@@ -64,6 +65,14 @@ def run_scaphandre(url, duration):
             'timestamp': timestamp,
             'duration': float(duration),
             'energy': mean_consumption / 10 ** 6,
+            'cpu_power': '',
+            'cpu_energy': '',
+            'gpu_power': '',
+            'gpu_energy': '',
+            'ram_power': '',
+            'ram_energy': '',
+            'emissions': '',
+            'emissions_rate': '',
         }
 
         output_to_csv(pd.DataFrame([row]))
@@ -98,6 +107,7 @@ def end_codecarbon(url, duration):
         os.remove('out/tmp/codecarbon.csv')
         tracker = OfflineEmissionsTracker(measure_power_secs=duration)
         subprocess.run(['rm', '/tmp/.codecarbon.lock'])
+        event.clear()
     except Exception as e:
         print(e)
 
@@ -122,8 +132,6 @@ def measure(url, duration, delay, tool: _TOOLS):
                 run_scaphandre(url, duration)
             case "codecarbon":
                 run_codecarbon(url, duration)
-            case "powerjoular":
-                run_powerjoular(url, duration)
 
     except Exception as e:
         print(f"Failed to load {url}:\n{str(e)}")
@@ -132,25 +140,41 @@ def measure(url, duration, delay, tool: _TOOLS):
 def main():
     global driver, tracker, run_id
 
-    tool: _TOOLS = 'scaphandre'
+    tool: _TOOLS = 'codecarbon'
+    browser: _BROWSERS = 'chrome'
     duration = 10  # Measurement duration
     delay = 5  # Delay between measurements
     repeat = 1
     atexit.register(tracker.stop)
+
+    ff_options = webdriver.FirefoxOptions()
+    ff_options.add_argument('--private')
+    ff_options.set_preference('browser.cache.disk.enable', False)
+    ff_options.set_preference('browser.cache.memory.enable', False)
+    ff_options.set_preference('browser.cache.offline.enable', False)
+
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument('--incognito')
+    chrome_options.add_argument('--disk-cache-size=0')
 
     for i in range(repeat):
         run_id = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
 
         # Measure baseline
         measure("os", duration, delay, tool)
-        driver = webdriver.Firefox()
+
+        if browser == 'firefox':
+            driver = webdriver.Firefox(options=ff_options)
+        elif browser == 'chrome':
+            driver = webdriver.Chrome(options=chrome_options)
+
         measure("about:blank", duration, delay, tool)
 
         # Measure URLs
         with open('data/test.json', 'r') as f:
             urls = json.load(f)
             for url in urls:
-                measure(url, duration, delay, 'codecarbon')
+                measure(url, duration, delay, tool)
 
         driver.quit()
 
