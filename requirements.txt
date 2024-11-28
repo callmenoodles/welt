@@ -1,0 +1,5 @@
+codecarbon==2.8.0
+matplotlib==3.9.2
+numpy==2.1.3
+pandas==2.2.3
+selenium==4.27.1

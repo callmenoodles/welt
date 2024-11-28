@@ -4,6 +4,11 @@ Visualize data from Scaphandre and CodeCarbon
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import tkinter as tk
+from tkinter import filedialog
+
+root = tk.Tk()
+root.withdraw()
 
 color = "#66a85a"
 
@@ -51,7 +56,8 @@ def create_barchart(df, column):
 
 
 if __name__ == '__main__':
-    df = pd.read_csv('backup/out-b570817a-63d5-4b1e-9b0f-c91741917d32.csv')
+    csv = filedialog.askopenfilename(title='Choose CSV', filetypes=(('Comma Separated Values', '*.csv'),))
+    df = pd.read_csv(csv)
     df_nobase = df[df['url'] != 'OS']
     baseline = df.iloc[1, 5]  # 0 = OS, 1 = OS + Browser
 
