@@ -1,23 +1,23 @@
+import os
 import json
+import time
+import glob
+import atexit
+import tomllib
+import threading
+import subprocess
 from urllib.parse import urlparse
-import numpy as np
+
 from selenium.webdriver.firefox.webdriver import WebDriver as FirefoxWebDriver
+from selenium.webdriver.chrome.webdriver import WebDriver as ChromeWebDriver
 from codecarbon import OfflineEmissionsTracker
 from selenium import webdriver
 from datetime import datetime
-from typing import Literal
 import pandas as pd
-import subprocess
-import threading
-import os.path
-import atexit
-import time
-import os
+import numpy as np
 
-_TOOLS = Literal['scaphandre', 'codecarbon', 'powerjoular']
-_BROWSERS = Literal['firefox', 'chrome']
-driver: FirefoxWebDriver | None = None
-tracker = OfflineEmissionsTracker(measure_power_secs=10)
+driver: FirefoxWebDriver | ChromeWebDriver | None = None
+tracker: OfflineEmissionsTracker | None = None
 event = threading.Event()
 
 
@@ -25,15 +25,15 @@ def get_timestamp():
     return datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
 
 
-run_id = get_timestamp()
-
-
 def get_domain(url):
     return str(urlparse(url).netloc)
 
 
+run_id = get_timestamp()
+
+
 def output_to_csv(row):
-    path = f'out/{run_id}.csv'
+    path = os.path.join('out', f'{run_id}.csv')
     header = ('url,tool,timestamp,duration,energy,cpu_power,cpu_energy,gpu_power,gpu_energy,ram_power,'
               'ram_energy,emissions,emissions_rate')
 
@@ -43,14 +43,24 @@ def output_to_csv(row):
         row.to_csv(path, header=header, index=False)
 
 
+def load_config():
+    with open('config.toml', 'rb') as f:
+        return tomllib.load(f)
+
+
 def run_scaphandre(url, duration):
     timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-    domain = get_domain(url)
+    domain = url
+    config = load_config()
 
-    subprocess.run(["/usr/local/src/scaphandre/target/release/scaphandre", 'json', '-t', str(duration),
-                    '-s', '1', '-f', f'out/tmp/scaphandre-{domain}.json'])
+    if "os" not in url.lower():
+        domain = get_domain(url)
 
-    with open(f'out/tmp/scaphandre-{domain}.json', 'r') as f:
+    out_path = os.path.join('out', 'tmp', f'scaphandre-{domain}.json')
+
+    subprocess.run([config.get('scaphandre_path'), 'json', '-t', str(duration), '-s', '1', '-f', out_path])
+
+    with open(out_path, 'r') as f:
         raw = json.load(f)
         consumption = []
 
@@ -78,47 +88,44 @@ def run_scaphandre(url, duration):
         output_to_csv(pd.DataFrame([row]))
 
 
-def end_codecarbon(url, duration):
-    global driver, tracker
-    tracker.flush()
-    tracker.stop()
-    event.set()
+def output_codecarbon():
+    tmp_path = glob.glob(os.path.join('out', 'tmp', 'emissions*.csv'))[0]
+    tmp_rows = pd.read_csv(tmp_path)
 
-    tmp_row = pd.read_csv('out/tmp/codecarbon.csv', nrows=1)
-    row = {
-        'url': url,
-        'tool': 'codecarbon',
-        'timestamp': tmp_row['timestamp'].values[0],
-        'duration': tmp_row['duration'].values[0],
-        'energy': tmp_row['energy_consumed'].values[0],
-        'cpu_power': tmp_row['cpu_power'].values[0],
-        'cpu_energy': tmp_row['cpu_energy'].values[0],
-        'gpu_power': tmp_row['gpu_power'].values[0],
-        'gpu_energy': tmp_row['gpu_power'].values[0],
-        'ram_power': tmp_row['ram_power'].values[0],
-        'ram_energy': tmp_row['ram_energy'].values[0],
-        'emissions': tmp_row['emissions'].values[0],
-        'emissions_rate': tmp_row['emissions_rate'].values[0],
-    }
+    for i, tmp_row in tmp_rows.iterrows():
+        row = {
+            'url': tmp_row['task_name'],
+            'tool': 'codecarbon',
+            'timestamp': tmp_row['timestamp'],
+            'duration': tmp_row['duration'],
+            'energy': tmp_row['energy_consumed'],
+            'cpu_power': tmp_row['cpu_power'],
+            'cpu_energy': tmp_row['cpu_energy'],
+            'gpu_power': tmp_row['gpu_power'],
+            'gpu_energy': tmp_row['gpu_power'],
+            'ram_power': tmp_row['ram_power'],
+            'ram_energy': tmp_row['ram_energy'],
+            'emissions': tmp_row['emissions'],
+            'emissions_rate': tmp_row['emissions_rate'],
+        }
 
-    output_to_csv(pd.DataFrame([row]))
-
-    try:
-        os.remove('out/tmp/codecarbon.csv')
-        tracker = OfflineEmissionsTracker(measure_power_secs=duration)
-        subprocess.run(['rm', '/tmp/.codecarbon.lock'])
-        event.clear()
-    except Exception as e:
-        print(e)
+        output_to_csv(pd.DataFrame([row]))
 
 
 def run_codecarbon(url, duration):
-    tracker.start()
-    threading.Timer(duration, end_codecarbon, args=[url, duration]).start()
+    global tracker
+
+    def end_codecarbon(url):
+        tracker.stop_task(url)
+        event.set()
+
+    event.clear()
+    tracker.start_task(url)
+    threading.Timer(duration, end_codecarbon, args=[url]).start()
     event.wait()
 
 
-def measure(url, duration, delay, tool: _TOOLS):
+def measure(url, duration, delay, tool):
     print(f"\nLoading {url}...")
 
     try:
@@ -137,15 +144,24 @@ def measure(url, duration, delay, tool: _TOOLS):
         print(f"Failed to load {url}:\n{str(e)}")
 
 
+def clean_tmp():
+    csvs = glob.glob(os.path.join('out', 'tmp', '*.csv'))
+    jsons = glob.glob(os.path.join('out', 'tmp', '*.json'))
+
+    for file in csvs + jsons:
+        os.remove(file)
+
+
 def main():
     global driver, tracker, run_id
+    config = load_config()
 
-    tool: _TOOLS = 'codecarbon'
-    browser: _BROWSERS = 'chrome'
-    duration = 10  # Measurement duration
-    delay = 5  # Delay between measurements
-    repeat = 1
-    atexit.register(tracker.stop)
+    tool = config.get('tool')
+    browser = config.get('browser')
+    duration = config.get('duration')
+    delay = config.get('delay')
+    repeat = config.get('repeat')
+    dataset = config.get('dataset')
 
     ff_options = webdriver.FirefoxOptions()
     ff_options.add_argument('--private')
@@ -158,7 +174,11 @@ def main():
     chrome_options.add_argument('--disk-cache-size=0')
 
     for i in range(repeat):
-        run_id = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+        clean_tmp()
+        run_id = get_timestamp()
+
+        if tool == 'codecarbon':
+            tracker = OfflineEmissionsTracker(measure_power_secs=duration)
 
         # Measure baseline
         measure("os", duration, delay, tool)
@@ -171,10 +191,15 @@ def main():
         measure("about:blank", duration, delay, tool)
 
         # Measure URLs
-        with open('data/test.json', 'r') as f:
+        with open(os.path.join('data', f'{dataset}.json'), 'r') as f:
             urls = json.load(f)
+
             for url in urls:
                 measure(url, duration, delay, tool)
+
+            if tool == 'codecarbon':
+                tracker.stop()
+                output_codecarbon()
 
         driver.quit()
 

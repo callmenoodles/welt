@@ -2,6 +2,7 @@
 *.bak
 .idea
 backup/
+data/test.json
 test.py
 
 # Created by .ignore support plugin (hsz.mobi)

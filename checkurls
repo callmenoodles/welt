@@ -1,14 +1,10 @@
 #!/bin/zsh
 
-# JSON array of websites (replace with your actual JSON array)
 sites=$(cat ./data/combined.json)
 
-# Loop over each website in the JSON array
 for url in $(echo $sites | jq -r '.[]'); do
-  # Get the HTTP status code using curl
   status_code=$(curl -s -o /dev/null -w "%{http_code}" "$url")
-  
-  # Check if status code is not 200
+
   if [[ "$status_code" -ne 200 ]]; then
     echo "Website $url returned status code $status_code"
   fi
