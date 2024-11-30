@@ -2,7 +2,6 @@ import os
 import json
 import time
 import glob
-import atexit
 import tomllib
 import threading
 import subprocess
