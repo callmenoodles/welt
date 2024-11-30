@@ -1,6 +1,9 @@
 # Manually added
 *.bak
 .idea
+backup/
+data/test.json
+test.py
 
 # Created by .ignore support plugin (hsz.mobi)
 ### Python template
@@ -159,7 +162,7 @@ cmake-build-*/
 *.iws
 
 # IntelliJ
-out/
+# out/
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/

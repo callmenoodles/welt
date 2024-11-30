@@ -1,0 +1,7 @@
+tool = 'codecarbon'
+scaphandre_path = '/usr/local/src/scaphandre/target/release/scaphandre'
+browser = 'chrome'
+dataset = 'test'
+duration = 10
+delay = 5
+repeat = 2

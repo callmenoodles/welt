@@ -1,0 +1,11 @@
+#!/bin/zsh
+
+sites=$(cat ./data/combined.json)
+
+for url in $(echo $sites | jq -r '.[]'); do
+  status_code=$(curl -s -o /dev/null -w "%{http_code}" "$url")
+
+  if [[ "$status_code" -ne 200 ]]; then
+    echo "Website $url returned status code $status_code"
+  fi
+done
