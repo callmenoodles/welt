@@ -58,16 +58,18 @@ def create_barchart(df, column):
 if __name__ == '__main__':
     csv = filedialog.askopenfilename(title='Choose CSV', filetypes=(('Comma Separated Values', '*.csv'),))
     df = pd.read_csv(csv)
-    df_nobase = df[df['url'] != 'OS']
-    baseline = df.iloc[1, 5]  # 0 = OS, 1 = OS + Browser
+    df = df[df['energy'] > 0.0]
+    df_nobase = pd.read_csv(csv, skiprows=[1,2])
+    energy_col = 4
+    baseline = df.iloc[1, energy_col]  # 0 = os, 1 = about:blank
 
-    df[df.columns[5]] = df[df.columns[5]] - baseline
-    df_nobase[df_nobase.columns[5]] = df_nobase[df_nobase.columns[5]] - baseline
+    df[df.columns[energy_col]] = df[df.columns[energy_col]] - baseline
+    df_nobase[df_nobase.columns[energy_col]] = df_nobase[df_nobase.columns[energy_col]] - baseline
 
     col = 'energy'
 
     create_histogram(df_nobase, col)
     create_labeled_histogram(df_nobase, col)
-    create_barchart(df_nobase, col)
+    create_barchart(df, col)
 
     plt.show()
