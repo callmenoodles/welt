@@ -4,4 +4,4 @@ browser = 'chrome'
 dataset = 'combined'
 duration = 10
 delay = 5
-repeat = 6
+repeat = 50
