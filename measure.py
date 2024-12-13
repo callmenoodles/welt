@@ -21,7 +21,7 @@ event = threading.Event()
 
 
 def get_timestamp():
-    return datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+    return datetime.now().strftime('%Y-%m-%dT%H-%M-%S')
 
 
 def get_domain(url):
@@ -48,7 +48,7 @@ def load_config():
 
 
 def run_scaphandre(url, duration):
-    timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+    timestamp = get_timestamp()
     domain = url
     config = load_config()
 
