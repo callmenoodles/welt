@@ -1,0 +1,2 @@
+url,tool,timestamp,duration,energy,cpu_power,cpu_energy,gpu_power,gpu_energy,ram_power,ram_energy,emissions,emissions_rate
+http://www.soundcloud.com,codecarbon,2024-12-09T17:18:31,10.002806686999977,6.610850318412506e-05,17.964331319362127,4.991664632217428e-05,0.0,0.0,5.827481746673584,1.619185686195057e-05,1.769208983914191e-05,1.768624419582718e-06

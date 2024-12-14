@@ -1,0 +1,24 @@
+#!/bin/zsh
+
+# Function to count rows in a CSV file
+count_rows() {
+  awk 'END { print NR }' "$1"
+}
+
+# Get the directory path from the user
+print "Enter the directory path: "
+read directory_path
+
+# Check if the directory exists
+if [[ ! -d "$directory_path" ]]; then
+  echo "Invalid directory path. Please try again."
+  exit 1
+fi
+
+# Iterate through each CSV file in the directory
+for file in "$directory_path"/*.csv; do
+  if [[ -f "$file" ]]; then
+    row_count=$(count_rows "$file")
+    echo "$file: $row_count rows"
+  fi
+done
