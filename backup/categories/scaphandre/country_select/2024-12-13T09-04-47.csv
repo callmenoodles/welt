@@ -1,3 +1,5 @@
 url,tool,timestamp,duration,energy,cpu_power,cpu_energy,gpu_power,gpu_energy,ram_power,ram_energy,emissions,emissions_rate
+os,scaphandre,2024-12-13T09-04-52,10.0,14.5884261,,,,,,,,
+about:blank,scaphandre,2024-12-13T09-05-09,10.0,17.0322266,,,,,,,,
 http://www.fedex.com,scaphandre,2024-12-13T09-55-06,10.0,16.7773474,,,,,,,,
 http://www.bestbuy.com,scaphandre,2024-12-13T10-06-36,10.0,16.1546266,,,,,,,,

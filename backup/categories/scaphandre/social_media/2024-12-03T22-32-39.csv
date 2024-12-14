@@ -1,4 +1,6 @@
 url,tool,timestamp,duration,energy,cpu_power,cpu_energy,gpu_power,gpu_energy,ram_power,ram_energy,emissions,emissions_rate
+os,scaphandre,2024-12-03-22-32-44,10.0,14.825763,,,,,,,,
+about-blank,scaphandre,2024-12-03-22-33-00,10.0,15.7025916,,,,,,,,
 http://www.imgur.com,scaphandre,2024-12-03-22-43-26,10.0,17.4622722,,,,,,,,
 http://www.reddit.com,scaphandre,2024-12-03-22-45-10,10.0,17.184185600000003,,,,,,,,
 http://www.9gag.com,scaphandre,2024-12-03-23-33-43,10.0,16.7221892,,,,,,,,

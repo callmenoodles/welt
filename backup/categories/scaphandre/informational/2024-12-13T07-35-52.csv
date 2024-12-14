@@ -1,4 +1,6 @@
 url,tool,timestamp,duration,energy,cpu_power,cpu_energy,gpu_power,gpu_energy,ram_power,ram_energy,emissions,emissions_rate
+os,scaphandre,2024-12-13T07-35-57,10.0,14.3796752,,,,,,,,
+about:blank,scaphandre,2024-12-13T07-36-13,10.0,15.8120518,,,,,,,,
 http://www.weibo.com,scaphandre,2024-12-13T07-39-54,10.0,16.658163599999998,,,,,,,,
 http://www.sohu.com,scaphandre,2024-12-13T07-42-23,10.0,16.900247399999998,,,,,,,,
 http://www.163.com,scaphandre,2024-12-13T07-43-02,10.0,17.441798,,,,,,,,

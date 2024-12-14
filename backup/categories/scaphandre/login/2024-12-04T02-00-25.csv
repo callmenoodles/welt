@@ -1,4 +1,6 @@
 url,tool,timestamp,duration,energy,cpu_power,cpu_energy,gpu_power,gpu_energy,ram_power,ram_energy,emissions,emissions_rate
+os,scaphandre,2024-12-04-02-00-30,10.0,14.6858436,,,,,,,,
+about-blank,scaphandre,2024-12-04-02-00-46,10.0,16.0635358,,,,,,,,
 http://www.vk.com,scaphandre,2024-12-04-02-06-34,10.0,15.803735,,,,,,,,
 http://www.odnoklassniki.ru,scaphandre,2024-12-04-02-14-19,10.0,17.3109262,,,,,,,,
 http://www.tagged.com,scaphandre,2024-12-04-03-22-33,10.0,16.0871208,,,,,,,,

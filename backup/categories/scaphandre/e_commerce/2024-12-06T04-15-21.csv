@@ -1,4 +1,6 @@
 url,tool,timestamp,duration,energy,cpu_power,cpu_energy,gpu_power,gpu_energy,ram_power,ram_energy,emissions,emissions_rate
+os,scaphandre,2024-12-06-04-15-26,10.0,14.6666588,,,,,,,,
+about-blank,scaphandre,2024-12-06-04-15-43,10.0,16.3329706,,,,,,,,
 http://www.taobao.com,scaphandre,2024-12-06-04-17-26,10.0,17.6397518,,,,,,,,
 http://www.amazon.com,scaphandre,2024-12-06-04-18-18,10.0,16.023739,,,,,,,,
 http://www.tmall.com,scaphandre,2024-12-06-04-21-02,10.0,17.2336988,,,,,,,,

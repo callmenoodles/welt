@@ -1,4 +1,6 @@
 url,tool,timestamp,duration,energy,cpu_power,cpu_energy,gpu_power,gpu_energy,ram_power,ram_energy,emissions,emissions_rate
+os,scaphandre,2024-12-04-02-00-30,10.0,14.6858436,,,,,,,,
+about-blank,scaphandre,2024-12-04-02-00-46,10.0,16.0635358,,,,,,,,
 http://www.baidu.com,scaphandre,2024-12-04-02-01-28,10.0,17.0571424,,,,,,,,
 http://www.wikipedia.org,scaphandre,2024-12-04-02-01-45,10.0,16.5198336,,,,,,,,
 http://www.ask.com,scaphandre,2024-12-04-02-08-24,10.0,15.814327800000001,,,,,,,,
