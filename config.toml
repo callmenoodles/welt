@@ -1,7 +1,7 @@
 tool = 'scaphandre'
 scaphandre_path = '/usr/local/src/scaphandre/target/release/scaphandre'
 browser = 'chrome'
-dataset = 'combined'
+dataset = 'websites'
 duration = 10
 delay = 5
 repeat = 50
