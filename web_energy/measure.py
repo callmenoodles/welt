@@ -32,7 +32,7 @@ run_id = get_timestamp()
 
 
 def output_to_csv(row):
-    path = os.path.join('out', f'{run_id}.csv')
+    path = os.path.join('../out', f'{run_id}.csv')
     header = ('url,tool,timestamp,duration,energy,cpu_power,cpu_energy,gpu_power,gpu_energy,ram_power,'
               'ram_energy,emissions,emissions_rate')
 
@@ -43,7 +43,7 @@ def output_to_csv(row):
 
 
 def load_config():
-    with open('config.toml', 'rb') as f:
+    with open('../config.toml', 'rb') as f:
         return tomllib.load(f)
 
 
@@ -55,7 +55,7 @@ def run_scaphandre(url, duration):
     if "os" not in url.lower():
         domain = get_domain(url)
 
-    out_path = os.path.join('out', 'tmp', f'scaphandre-{domain}.json')
+    out_path = os.path.join('../out', 'tmp', f'scaphandre-{domain}.json')
 
     subprocess.run([config.get('scaphandre_path'), 'json', '-t', str(duration), '-s', '1', '-f', out_path])
 
@@ -88,7 +88,7 @@ def run_scaphandre(url, duration):
 
 
 def output_codecarbon():
-    tmp_path = glob.glob(os.path.join('out', 'tmp', 'emissions*.csv'))[0]
+    tmp_path = glob.glob(os.path.join('../out', 'tmp', 'emissions*.csv'))[0]
     tmp_rows = pd.read_csv(tmp_path)
 
     for i, tmp_row in tmp_rows.iterrows():
@@ -144,8 +144,8 @@ def measure(url, duration, delay, tool):
 
 
 def clean_tmp():
-    csvs = glob.glob(os.path.join('out', 'tmp', '*.csv'))
-    jsons = glob.glob(os.path.join('out', 'tmp', '*.json'))
+    csvs = glob.glob(os.path.join('../out', 'tmp', '*.csv'))
+    jsons = glob.glob(os.path.join('../out', 'tmp', '*.json'))
 
     for file in csvs + jsons:
         os.remove(file)
@@ -177,7 +177,17 @@ def main():
         run_id = get_timestamp()
 
         if tool == 'codecarbon':
-            tracker = OfflineEmissionsTracker(measure_power_secs=duration)
+            tracker = OfflineEmissionsTracker(
+                project_name='welt',
+                measure_power_secs=duration,
+                save_to_file=True,
+                country_iso_code='NLD',
+                output_dir='../out/tmp',
+                output_file='codecarbon.csv',
+                on_csv_write='append',
+                save_to_api=False,
+                tracking_mode='machine'
+            )
 
         # Measure baseline
         measure("os", duration, delay, tool)
@@ -190,7 +200,7 @@ def main():
         measure("about:blank", duration, delay, tool)
 
         # Measure URLs
-        with open(os.path.join('data', f'{dataset}.json'), 'r') as f:
+        with open(os.path.join('../data', f'{dataset}.json'), 'r') as f:
             urls = json.load(f)
 
             for url in urls:
