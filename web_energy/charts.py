@@ -43,8 +43,8 @@ def gen_barchart(df, column='energy', title=""):
 
     plt.figure(figsize=(20, 10))
     plt.barh(sorted_df['url'], sorted_df[column])
-    plt.xlabel('Energy Consumption (kWh)')
-    plt.ylabel('URL')
+    plt.xlabel('Energy Consumption (kWh)', labelpad=16)
+    plt.ylabel('URL', labelpad=8)
     plt.title(title)
 
     return plt
@@ -57,8 +57,8 @@ def gen_histogram(df, column='energy', is_labeled=False, title=""):
     plt.figure()
     plt.hist(df[column], rwidth=0.85, bins=bins)
     plt.xticks(bins)
-    plt.xlabel('Energy Consumption (kWh)')
-    plt.ylabel('Number of URLs')
+    plt.xlabel('Energy Consumption (kWh)', labelpad=8)
+    plt.ylabel('Number of URLs', labelpad=8)
     plt.xlim(left=bins[0], right=bins[len(bins) - 1])
     plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
     plt.ticklabel_format(axis='y', style='plain')
@@ -107,8 +107,8 @@ def gen_qq(df, category, column='energy'):
     plt.yticks(weighted_quantiles, [f'{q:.2f}' for q in weighted_quantiles])
     plt.gca().yaxis.set_major_formatter(plt.ScalarFormatter(useMathText=True))
     plt.gca().ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
-    plt.xlabel('Theoretical Quantiles')
-    plt.ylabel('Energy Consumption (kWh)')
+    plt.xlabel('Theoretical Quantiles', labelpad=8)
+    plt.ylabel('Energy Consumption (kWh)', labelpad=8)
     plt.grid(True, axis='both', linestyle=':')
 
     labels = []
@@ -122,6 +122,7 @@ def gen_qq(df, category, column='energy'):
         for y in labels
     ])  # Normalization
     ax_label.set_yticklabels(globals.LABELS)
+    ax_label.set_ylabel('Energy Label', rotation=270, labelpad=16)
 
     return plt
 
