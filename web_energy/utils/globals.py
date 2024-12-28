@@ -1,12 +1,13 @@
-import os, sys
+import sys
 
-# PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = sys.path[1]
+TOOLS = ['codecarbon', 'scaphandre']
+LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+COLOR_UVA = '#bd0032'
 
-TOOLS = [
-    'codecarbon',
-    'scaphandre'
-]
+HLINE_COLOR = 'gray'
+HLINE_STYLE = ':'
+HLINE_ALPHA = 0.2
 
 CATEGORIES = [
     'age_restricted',
@@ -25,5 +26,3 @@ CATEGORIES = [
     'streaming_video',
     'utilities'
 ]
-
-LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
