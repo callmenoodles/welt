@@ -73,7 +73,7 @@ def run_scaphandre(url, duration):
             'tool': 'scaphandre',
             'timestamp': timestamp,
             'duration': float(duration),
-            'energy': mean_consumption / 10 ** 6,  # Scaphandre outputs microwatts
+            'energy': mean_consumption / 10 ** 6,  # Scaphandre outputs microwatts TODO: Take sum and multiply by time
             'cpu_power': '',
             'cpu_energy': '',
             'gpu_power': '',

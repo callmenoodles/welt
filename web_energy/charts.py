@@ -41,7 +41,7 @@ def get_dataframe(tool, category, use_median=False):
 def gen_barchart(df, column='energy', title=""):
     sorted_df = df.sort_values(by=column, ascending=False)
 
-    plt.figure(figsize=(20, 10))
+    plt.figure(figsize=(22, 10))
     plt.barh(sorted_df['url'], sorted_df[column])
     plt.xlabel('Energy Consumption (kWh)', labelpad=16)
     plt.ylabel('URL', labelpad=8)
@@ -51,7 +51,7 @@ def gen_barchart(df, column='energy', title=""):
 
 
 def gen_histogram(df, column='energy', is_labeled=False, title=""):
-    bin_count = 7 if is_labeled else 10
+    bin_count = 7 if is_labeled else int(np.ceil(np.sqrt(len(df))))
     bins = np.linspace(df[column].values.min(), df[column].values.max(), bin_count + 1)
 
     plt.figure()
@@ -69,7 +69,7 @@ def gen_histogram(df, column='energy', is_labeled=False, title=""):
         ax_label = ax_energy.secondary_xaxis(1.0)
         ax_label.set_ticks(0.5 * (bins[1:] + bins[:-1]))
         ax_label.set_xticklabels(globals.LABELS)
-        ax_label.set_xlabel('Energy Labels')
+        ax_label.set_xlabel('Energy Labels', labelpad=8)
 
     return plt
 
@@ -101,6 +101,7 @@ def gen_qq(df, category, column='energy'):
 
     weighted_quantiles = _weighted_quantile(df[column].values, levels, weights)
 
+    plt.figure()
     plt.plot(levels, weighted_quantiles, linestyle='-', label='Weighted')
     plt.plot(levels, quantiles, linestyle=':', label='Unweighted', color='#505050', markersize=8)
     plt.legend(loc="upper left")
