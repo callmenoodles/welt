@@ -1,0 +1,5 @@
+url,tool,timestamp,duration,energy,cpu_power,cpu_energy,gpu_power,gpu_energy,ram_power,ram_energy,emissions,emissions_rate
+os,scaphandre,2024-12-03-10-10-14,10.0,14.301210800000002,,,,,,,,
+about-blank,scaphandre,2024-12-03-10-10-30,10.0,16.4841714,,,,,,,,
+http://www.yahoo.com,scaphandre,2024-12-03-10-11-03,10.0,16.1084858,,,,,,,,
+http://www.aol.com,scaphandre,2024-12-03-10-31-21,10.0,16.583376,,,,,,,,

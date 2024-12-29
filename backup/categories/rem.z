@@ -1,0 +1,54 @@
+#!/bin/zsh
+
+# Prompt for input directory
+echo "Please enter the path to the directory containing CSV files:"
+read input_dir
+
+# Check if the input directory exists
+if [[ ! -d "$input_dir" ]]; then
+  echo "Directory does not exist. Exiting."
+  exit 1
+fi
+
+# Prompt for the URL list file
+echo "Please enter the path to the file containing URLs to remove (one URL per line):"
+read url_list_file
+
+# Check if the URL list file exists
+if [[ ! -f "$url_list_file" ]]; then
+  echo "URL list file does not exist. Exiting."
+  exit 1
+fi
+
+# Read the URLs into an array
+urls_to_remove=()
+while IFS= read -r url; do
+  urls_to_remove+=("$url")
+done < "$url_list_file"
+
+# Iterate through all CSV files in the directory
+for csv_file in "$input_dir"/*.csv; do
+  # Check if there are any CSV files
+  if [[ ! -f "$csv_file" ]]; then
+    echo "No CSV files found in the directory."
+    exit 1
+  fi
+  
+  # Create a temporary file to hold the filtered content
+  temp_file=$(mktemp)
+
+  # Process each line of the CSV file
+  while IFS=, read -r url rest_of_line; do
+    # Check if the URL is in the removal list
+    if [[ ! " ${urls_to_remove[@]} " =~ " $url " ]]; then
+      echo "$url,$rest_of_line" >> "$temp_file"
+    fi
+  done < "$csv_file"
+
+  # Replace the original CSV file with the filtered content
+  mv "$temp_file" "$csv_file"
+  echo "Processed $csv_file"
+done
+
+echo "Finished processing all CSV files."
+

@@ -1,0 +1,5 @@
+url,tool,timestamp,duration,energy,cpu_power,cpu_energy,gpu_power,gpu_energy,ram_power,ram_energy,emissions,emissions_rate
+os,scaphandre,2024-12-13T09-04-52,10.0,14.5884261,,,,,,,,
+about:blank,scaphandre,2024-12-13T09-05-09,10.0,17.0322266,,,,,,,,
+http://www.sourceforge.net,scaphandre,2024-12-13T09-32-31,10.0,16.8099776,,,,,,,,
+http://www.softonic.com,scaphandre,2024-12-13T09-36-52,10.0,15.6914186,,,,,,,,

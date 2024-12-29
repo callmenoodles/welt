@@ -1,7 +1,10 @@
 # Manually added
 *.bak
 .idea
-backup/
+backup/*.z
+backup/.old
+backup/codecarbon
+backup/scaphandre
 data/test.json
 test.py
 
